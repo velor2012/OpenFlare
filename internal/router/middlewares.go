@@ -35,7 +35,7 @@ func loggerMiddleware() gin.HandlerFunc {
 		// 记录请求路径和 Query
 		path := c.Request.URL.Path
 		raw := c.Request.URL.RawQuery
-		if raw != "" {
+		if raw != "" && !strings.HasPrefix(path, "/api/v1/site-auth/") {
 			path = path + "?" + raw
 		}
 

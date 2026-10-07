@@ -10,6 +10,10 @@ sidebar: false
 
 ## [Unreleased]
 
+### ✨ 新功能
+
+- 规则认证配置支持复用系统 OIDC 认证源保护反代及 Pages 网站；访客登录后返回原站点，无需创建平台账号，认证源停用或更新后拒绝现有会话，节点不持有 OIDC 密钥。启用前须升级 Agent、配置 HTTPS 与新增 OIDC 回调地址，再发布配置版本。
+
 ### 🛠 修复
 
 - 默认信任 Cloudflare 官方 IPv4/IPv6 网段，并允许管理员追加或覆盖可信代理 CIDR；显式 `[]` 可关闭信任。客户端地址恢复后统一用于访问日志、WAF、`X-Real-IP` 和 `X-Forwarded-For` 追加项，旧版自定义 OpenResty 主模板也会自动补入相关指令。

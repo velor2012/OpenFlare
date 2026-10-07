@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Rain-kl/Wavelet/internal/apps/openflare/site_auth"
 	oftls "github.com/Rain-kl/Wavelet/internal/apps/openflare/tls"
 	"github.com/Rain-kl/Wavelet/internal/apps/openflare/waf"
 	"github.com/Rain-kl/Wavelet/internal/model"
@@ -65,6 +66,8 @@ type snapshotRoute struct {
 	BasicAuthEnabled   bool                             `json:"basic_auth_enabled,omitempty"`
 	BasicAuthUsername  string                           `json:"basic_auth_username,omitempty"`
 	BasicAuthPassword  string                           `json:"basic_auth_password,omitempty"`
+	OIDCAuthSourceID   *uint64                          `json:"oidc_auth_source_id,omitempty"`
+	OIDCAuthURL        string                           `json:"oidc_auth_url,omitempty"`
 	UpstreamType       string                           `json:"upstream_type,omitempty"`
 	TunnelNodeID       *uint                            `json:"tunnel_node_id,omitempty"`
 	TunnelTargetAddr   string                           `json:"tunnel_target_addr,omitempty"`
@@ -233,6 +236,14 @@ func buildCurrentConfigBundle(ctx context.Context, requireRoutes bool) (*configB
 func buildSnapshotRoutes(ctx context.Context, routes []*model.ProxyRoute) ([]snapshotRoute, error) {
 	items := make([]snapshotRoute, 0, len(routes))
 	for _, route := range routes {
+		var oidcAuthURL string
+		if route.OIDCAuthSourceID != nil {
+			var err error
+			oidcAuthURL, err = site_auth.ControlURL(ctx)
+			if err != nil {
+				return nil, err
+			}
+		}
 		zoneDomains, err := repository.ListZoneDomainsByRouteID(ctx, route.ID)
 		if err != nil {
 			return nil, err
@@ -305,6 +316,8 @@ func buildSnapshotRoutes(ctx context.Context, routes []*model.ProxyRoute) ([]sna
 			BasicAuthEnabled:   route.BasicAuthEnabled,
 			BasicAuthUsername:  route.BasicAuthUsername,
 			BasicAuthPassword:  route.BasicAuthPassword,
+			OIDCAuthSourceID:   route.OIDCAuthSourceID,
+			OIDCAuthURL:        oidcAuthURL,
 			UpstreamType:       upstreamType,
 			TunnelNodeID:       tunnelNodeID,
 			TunnelTargetAddr:   tunnelTargetAddr,

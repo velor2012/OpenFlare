@@ -5,6 +5,7 @@ package proxy_route
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	db "github.com/Rain-kl/Wavelet/internal/infra/persistence"
@@ -159,4 +160,43 @@ func TestNormalizeCachePolicyDefaultsAndLegacy(t *testing.T) {
 
 	_, err = normalizeCacheRules(true, "suffix", nil)
 	require.Error(t, err)
+}
+
+func TestProxyRouteOIDCValidation(t *testing.T) {
+	t.Cleanup(setupProxyRouteTestDB(t))
+	ctx := context.Background()
+	if err := db.DB(ctx).AutoMigrate(&model.AuthSource{}); err != nil {
+		t.Fatal(err)
+	}
+	source := &model.AuthSource{ID: 1, Name: "oidc", Type: model.AuthSourceTypeOIDC, IsActive: true}
+	if err := db.DB(ctx).Create(source).Error; err != nil {
+		t.Fatal(err)
+	}
+	input := Input{OIDCAuthSourceID: &source.ID, EnableHTTPS: true, RedirectHTTP: true}
+	if err := validateProxyRouteOIDC(ctx, input); err != nil {
+		t.Fatalf("validateProxyRouteOIDC(valid) = %v, want nil", err)
+	}
+	input.BasicAuthEnabled = true
+	if err := validateProxyRouteOIDC(ctx, input); err == nil {
+		t.Error("validateProxyRouteOIDC(basic and OIDC) accepted, want rejected")
+	}
+	input.BasicAuthEnabled, input.RedirectHTTP = false, false
+	if err := validateProxyRouteOIDC(ctx, input); err == nil {
+		t.Error("validateProxyRouteOIDC(no HTTP redirect) accepted, want rejected")
+	}
+	input.RedirectHTTP, input.EnableHTTPS = true, false
+	if err := validateProxyRouteOIDC(ctx, input); err == nil {
+		t.Error("validateProxyRouteOIDC(no HTTPS) accepted, want rejected")
+	}
+	input.EnableHTTPS = true
+	if err := db.DB(ctx).Model(source).Update("is_active", false).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := validateProxyRouteOIDC(ctx, input); err == nil {
+		t.Error("validateProxyRouteOIDC(disabled source) accepted, want rejected")
+	}
+	var bound Input
+	if err := json.Unmarshal([]byte(`{"oidc_auth_source_id":"1"}`), &bound); err != nil || bound.OIDCAuthSourceID == nil || *bound.OIDCAuthSourceID != source.ID {
+		t.Errorf("Input JSON binding = %+v, %v, want source ID 1", bound, err)
+	}
 }

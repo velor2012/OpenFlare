@@ -3096,6 +3096,9 @@ definitions:
         type: string
       limit_req_per_ip:
         type: string
+      oidc_auth_source_id:
+        example: "0"
+        type: string
       origin_address:
         type: string
       origin_host:
@@ -3176,6 +3179,9 @@ definitions:
       limit_rate:
         type: string
       limit_req_per_ip:
+        type: string
+      oidc_auth_source_id:
+        example: "0"
         type: string
       origin_host:
         type: string
@@ -3457,6 +3463,30 @@ definitions:
       data: {}
       error_msg:
         example: ""
+        type: string
+    type: object
+  site_auth.SessionInput:
+    properties:
+      binding:
+        type: string
+      host:
+        type: string
+      route_id:
+        type: integer
+      token:
+        type: string
+    required:
+    - host
+    - route_id
+    - token
+    type: object
+  site_auth.SessionResult:
+    properties:
+      max_age:
+        type: integer
+      return_path:
+        type: string
+      session:
         type: string
     type: object
   status.DatabaseInfoResponse:
@@ -12559,6 +12589,168 @@ paths:
       summary: 升级 Relay WebSocket 连接
       tags:
       - openflare-relay
+  /api/v1/site-auth/callback:
+    get:
+      parameters:
+      - description: OIDC state
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: 授权码
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "302":
+          description: 返回站点
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Any'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Any'
+      summary: 完成站点 OIDC 回调
+      tags:
+      - openflare-site-auth
+  /api/v1/site-auth/check:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 站点会话
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/site_auth.SessionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Any'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Any'
+      summary: 校验站点认证会话
+      tags:
+      - openflare-site-auth
+  /api/v1/site-auth/exchange:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 一次性凭证与浏览器绑定
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/site_auth.SessionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Any'
+            - properties:
+                data:
+                  $ref: '#/definitions/site_auth.SessionResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Any'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Any'
+      summary: 兑换站点认证凭证
+      tags:
+      - openflare-site-auth
+  /api/v1/site-auth/login:
+    get:
+      parameters:
+      - description: 代理规则 ID
+        in: query
+        name: route_id
+        required: true
+        type: integer
+      - description: HTTPS 站点返回地址
+        in: query
+        name: return_url
+        required: true
+        type: string
+      - description: 站点浏览器挑战 SHA-256
+        in: query
+        name: binding
+        required: true
+        type: string
+      responses:
+        "302":
+          description: OIDC 授权跳转
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Any'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Any'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/response.Any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Any'
+      summary: 发起站点 OIDC 认证
+      tags:
+      - openflare-site-auth
   /api/v1/tunnel/apply-log:
     post:
       consumes:

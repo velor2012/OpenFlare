@@ -27,6 +27,8 @@ const (
 	errProxyRouteCertDomainLength    = "domain_cert_ids must match domains length"
 	errProxyRouteRedirectHTTP        = "redirect_http requires enable_https"
 	errProxyRouteBasicAuth           = "basic_auth_username and basic_auth_password cannot be empty when basic auth is enabled"
+	errProxyRouteOIDCHTTPS           = "OIDC requires HTTPS and HTTP redirection, and cannot be combined with Basic Auth"
+	errProxyRouteOIDCSource          = "selected OIDC authentication source does not exist or is disabled"
 	errProxyRouteLimitRate           = "limit_rate must be a number or use the 512k / 1m format, or -1 to disable"
 	errProxyRouteCachePolicy         = "cache policy is not supported"
 	errProxyRouteCacheSuffix         = "cache suffix format is invalid"

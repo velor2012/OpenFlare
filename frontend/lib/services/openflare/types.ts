@@ -249,6 +249,7 @@ export interface ProxyRouteItem {
   basic_auth_enabled: boolean;
   basic_auth_username: string;
   basic_auth_password: string;
+  oidc_auth_source_id?: string | null;
   upstream_type: 'direct' | 'tunnel' | 'pages';
   tunnel_node_id?: number | null;
   tunnel_id?: number | null;
@@ -285,6 +286,7 @@ export interface ProxyRouteMutationPayload {
   basic_auth_enabled: boolean;
   basic_auth_username?: string;
   basic_auth_password?: string;
+  oidc_auth_source_id?: string | null;
   upstream_type?: 'direct' | 'tunnel' | 'pages';
   tunnel_node_id?: number | null;
   tunnel_id?: number | null;

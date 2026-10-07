@@ -100,6 +100,14 @@ func GetActiveConfigHandler(c *gin.Context) {
 	if apiutil.AbortBadRequestOnError(c, err) {
 		return
 	}
+	needsSiteAuth, err := requiresSiteAuth(config.SourceConfigJSON)
+	if apiutil.AbortBadRequestOnError(c, err) {
+		return
+	}
+	if needsSiteAuth && c.Query("site_auth") != "1" {
+		response.AbortBadRequest(c, "配置包含 OIDC 站点认证，请先升级 Agent")
+		return
+	}
 	c.JSON(http.StatusOK, response.OK(config))
 }
 

@@ -85,3 +85,20 @@ func isRuntimeGeneratedSupportFile(path string) bool {
 func isActiveConfigNotFound(err error) bool {
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
+
+func requiresSiteAuth(sourceJSON string) (bool, error) {
+	var doc struct {
+		Routes []struct {
+			SourceID *uint64 `json:"oidc_auth_source_id"`
+		} `json:"routes"`
+	}
+	if err := json.Unmarshal([]byte(sourceJSON), &doc); err != nil {
+		return false, err
+	}
+	for _, route := range doc.Routes {
+		if route.SourceID != nil {
+			return true, nil
+		}
+	}
+	return false, nil
+}

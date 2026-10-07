@@ -403,6 +403,7 @@ export function buildPayloadFromRoute(
     basic_auth_enabled: route.basic_auth_enabled,
     basic_auth_username: route.basic_auth_username,
     basic_auth_password: route.basic_auth_password,
+    oidc_auth_source_id: route.oidc_auth_source_id ?? null,
     upstream_type: route.upstream_type,
     tunnel_node_id: route.tunnel_node_id ?? route.tunnel_id ?? null,
     tunnel_target_addr: route.tunnel_target_addr || '',

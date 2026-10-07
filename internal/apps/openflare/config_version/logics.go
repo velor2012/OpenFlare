@@ -453,7 +453,16 @@ func snapshotRoutePolicyEqual(left, right snapshotRoute) bool {
 		left.CachePolicy == right.CachePolicy &&
 		left.BasicAuthEnabled == right.BasicAuthEnabled &&
 		left.BasicAuthUsername == right.BasicAuthUsername &&
-		left.BasicAuthPassword == right.BasicAuthPassword
+		left.BasicAuthPassword == right.BasicAuthPassword &&
+		uint64PtrEqual(left.OIDCAuthSourceID, right.OIDCAuthSourceID) &&
+		left.OIDCAuthURL == right.OIDCAuthURL
+}
+
+func uint64PtrEqual(left, right *uint64) bool {
+	if left == nil || right == nil {
+		return left == right
+	}
+	return *left == *right
 }
 
 func snapshotRouteTunnelEqual(left, right snapshotRoute) bool {

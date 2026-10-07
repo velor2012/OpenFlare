@@ -49,7 +49,7 @@ func uniqueUsername(ctx context.Context, base string) (string, error) {
 }
 
 func buildOAuthUserInfo(ctx context.Context, source *model.AuthSource, code string, nonce string, redirectURL string) (*model.OAuthUserInfo, error) {
-	authConfig, verifier, err := buildOAuthConfig(ctx, source, redirectURL)
+	authConfig, verifier, err := BuildOAuthConfig(ctx, source, redirectURL)
 	if err != nil {
 		return nil, err
 	}

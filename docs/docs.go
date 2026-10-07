@@ -13650,6 +13650,257 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/site-auth/callback": {
+            "get": {
+                "tags": [
+                    "openflare-site-auth"
+                ],
+                "summary": "完成站点 OIDC 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OIDC state",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "授权码",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "返回站点",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/site-auth/check": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openflare-site-auth"
+                ],
+                "summary": "校验站点认证会话",
+                "parameters": [
+                    {
+                        "description": "站点会话",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/site_auth.SessionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/site-auth/exchange": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openflare-site-auth"
+                ],
+                "summary": "兑换站点认证凭证",
+                "parameters": [
+                    {
+                        "description": "一次性凭证与浏览器绑定",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/site_auth.SessionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Any"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/site_auth.SessionResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/site-auth/login": {
+            "get": {
+                "tags": [
+                    "openflare-site-auth"
+                ],
+                "summary": "发起站点 OIDC 认证",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "代理规则 ID",
+                        "name": "route_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "HTTPS 站点返回地址",
+                        "name": "return_url",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "站点浏览器挑战 SHA-256",
+                        "name": "binding",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "OIDC 授权跳转",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Any"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/tunnel/apply-log": {
             "post": {
                 "security": [
@@ -19533,6 +19784,10 @@ const docTemplate = `{
                 "limit_req_per_ip": {
                     "type": "string"
                 },
+                "oidc_auth_source_id": {
+                    "type": "string",
+                    "example": "0"
+                },
                 "origin_address": {
                     "type": "string"
                 },
@@ -19654,6 +19909,10 @@ const docTemplate = `{
                 },
                 "limit_req_per_ip": {
                     "type": "string"
+                },
+                "oidc_auth_source_id": {
+                    "type": "string",
+                    "example": "0"
                 },
                 "origin_host": {
                     "type": "string"
@@ -20073,6 +20332,42 @@ const docTemplate = `{
                 "error_msg": {
                     "type": "string",
                     "example": ""
+                }
+            }
+        },
+        "site_auth.SessionInput": {
+            "type": "object",
+            "required": [
+                "host",
+                "route_id",
+                "token"
+            ],
+            "properties": {
+                "binding": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "route_id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "site_auth.SessionResult": {
+            "type": "object",
+            "properties": {
+                "max_age": {
+                    "type": "integer"
+                },
+                "return_path": {
+                    "type": "string"
+                },
+                "session": {
+                    "type": "string"
                 }
             }
         },

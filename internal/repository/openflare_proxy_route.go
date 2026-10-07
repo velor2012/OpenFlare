@@ -86,6 +86,7 @@ func proxyRouteUpdateMap(route *model.ProxyRoute) map[string]any {
 		"basic_auth_enabled":     route.BasicAuthEnabled,
 		"basic_auth_username":    route.BasicAuthUsername,
 		"basic_auth_password":    route.BasicAuthPassword,
+		"oidc_auth_source_id":    route.OIDCAuthSourceID,
 		"upstream_type":          route.UpstreamType,
 		"tunnel_node_id":         route.TunnelNodeID,
 		"tunnel_target_addr":     route.TunnelTargetAddr,

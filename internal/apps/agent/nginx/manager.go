@@ -405,6 +405,7 @@ func (m *Manager) EnsureLuaAssets() error {
 	}
 	allSupportFiles = append(allSupportFiles, powStaticFiles...)
 	allSupportFiles = append(allSupportFiles, ManagedSWLuaFiles()...)
+	allSupportFiles = append(allSupportFiles, ManagedSiteAuthLuaFiles()...)
 	files := make([]managedFile, 0, len(allSupportFiles))
 	for _, file := range allSupportFiles {
 		targetPath, err := luaFileTargetPath(m.LuaDir, file.Path)

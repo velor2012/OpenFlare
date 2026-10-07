@@ -92,7 +92,7 @@ func buildAuthorizeURL(ctx context.Context, source *model.AuthSource, state stri
 	if err != nil {
 		return "", err
 	}
-	authConfig, verifier, err := buildOAuthConfig(ctx, source, redirectURL)
+	authConfig, verifier, err := BuildOAuthConfig(ctx, source, redirectURL)
 	if err != nil {
 		return "", err
 	}

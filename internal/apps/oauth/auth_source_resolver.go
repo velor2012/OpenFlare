@@ -71,7 +71,9 @@ func getFrontendLoginRedirectURL(ctx context.Context) (string, error) {
 	return strings.TrimRight(sc.Value, "/") + "/login", nil
 }
 
-func buildOAuthConfig(ctx context.Context, source *model.AuthSource, redirectURL string) (*oauth2.Config, *oidc.IDTokenVerifier, error) {
+// BuildOAuthConfig builds an OIDC client for platform or site authentication.
+// The caller must validate the source, redirect URL, state, and nonce.
+func BuildOAuthConfig(ctx context.Context, source *model.AuthSource, redirectURL string) (*oauth2.Config, *oidc.IDTokenVerifier, error) {
 	if source == nil {
 		return nil, nil, errors.New(errAuthSourceRequired)
 	}

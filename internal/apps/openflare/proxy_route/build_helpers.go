@@ -11,6 +11,9 @@ import (
 	"strings"
 
 	"github.com/Rain-kl/Wavelet/internal/model"
+	"github.com/Rain-kl/Wavelet/internal/repository"
+	"github.com/Rain-kl/Wavelet/pkg/logger"
+	"gorm.io/gorm"
 )
 
 type proxyRouteJSONFields struct {
@@ -80,6 +83,27 @@ func normalizeProxyRouteBasicAuth(input *Input) error {
 	return nil
 }
 
+func validateProxyRouteOIDC(ctx context.Context, input Input) error {
+	if input.OIDCAuthSourceID == nil {
+		return nil
+	}
+	if input.BasicAuthEnabled || !input.EnableHTTPS || !input.RedirectHTTP {
+		return errors.New(errProxyRouteOIDCHTTPS)
+	}
+	source, err := repository.GetAuthSourceByID(ctx, *input.OIDCAuthSourceID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) || *input.OIDCAuthSourceID == 0 {
+			return errors.New(errProxyRouteOIDCSource)
+		}
+		logger.ErrorF(ctx, "load proxy route OIDC source failed: %v", err)
+		return errors.New(errProxyRouteOIDCSource)
+	}
+	if !source.IsActive || source.Type != model.AuthSourceTypeOIDC {
+		return errors.New(errProxyRouteOIDCSource)
+	}
+	return nil
+}
+
 func populateProxyRouteFields(
 	route *model.ProxyRoute,
 	input Input,
@@ -110,6 +134,7 @@ func populateProxyRouteFields(
 	route.BasicAuthEnabled = input.BasicAuthEnabled
 	route.BasicAuthUsername = input.BasicAuthUsername
 	route.BasicAuthPassword = input.BasicAuthPassword
+	route.OIDCAuthSourceID = input.OIDCAuthSourceID
 	route.UpstreamType = upstreamType
 }
 

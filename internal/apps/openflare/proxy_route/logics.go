@@ -48,6 +48,7 @@ type Input struct {
 	BasicAuthEnabled     bool                `json:"basic_auth_enabled"`
 	BasicAuthUsername    string              `json:"basic_auth_username"`
 	BasicAuthPassword    string              `json:"basic_auth_password"`
+	OIDCAuthSourceID     *uint64             `json:"oidc_auth_source_id,string"`
 	UpstreamType         string              `json:"upstream_type"`
 	TunnelNodeID         *uint               `json:"tunnel_node_id"`
 	TunnelID             *uint               `json:"tunnel_id"`
@@ -84,6 +85,7 @@ type View struct {
 	BasicAuthEnabled     bool                `json:"basic_auth_enabled"`
 	BasicAuthUsername    string              `json:"basic_auth_username"`
 	BasicAuthPassword    string              `json:"basic_auth_password"`
+	OIDCAuthSourceID     *uint64             `json:"oidc_auth_source_id,string"`
 	UpstreamType         string              `json:"upstream_type"`
 	TunnelNodeID         *uint               `json:"tunnel_node_id"`
 	TunnelID             *uint               `json:"tunnel_id"`
@@ -308,6 +310,9 @@ func buildProxyRoute(ctx context.Context, route *model.ProxyRoute, input Input) 
 	if err := normalizeProxyRouteBasicAuth(&input); err != nil {
 		return nil, err
 	}
+	if err := validateProxyRouteOIDC(ctx, input); err != nil {
+		return nil, err
+	}
 
 	if route == nil {
 		route = &model.ProxyRoute{}
@@ -399,6 +404,7 @@ func buildProxyRouteView(ctx context.Context, route *model.ProxyRoute) (*View, e
 		BasicAuthEnabled:     route.BasicAuthEnabled,
 		BasicAuthUsername:    route.BasicAuthUsername,
 		BasicAuthPassword:    route.BasicAuthPassword,
+		OIDCAuthSourceID:     route.OIDCAuthSourceID,
 		UpstreamType:         route.UpstreamType,
 		TunnelNodeID:         route.TunnelNodeID,
 		TunnelID:             route.TunnelNodeID,
